@@ -2,7 +2,7 @@
   "name": "confeasy",
   "productName": "ConfEasy",
   "version": "1.0.0",
-  "description": "一个帮你快速修改本地配置文件的工具",
+  "description": "A tool to help you quickly modify local configuration files",
   "main": "dist-electron/main.js",
   "scripts": {
     "dev": "vite",
