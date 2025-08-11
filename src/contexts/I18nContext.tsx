@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react'
+import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
 
 export type Language = 'zh' | 'en'
 
@@ -219,6 +219,7 @@ export function I18nProvider({ children }: I18nProviderProps) {
   )
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useI18n(): I18nContextType {
   const context = useContext(I18nContext)
   if (context === undefined) {
@@ -226,5 +227,3 @@ export function useI18n(): I18nContextType {
   }
   return context
 }
-
-export type { Language }

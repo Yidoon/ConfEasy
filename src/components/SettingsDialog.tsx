@@ -1,6 +1,6 @@
 import React from 'react'
 import { X, Moon, Sun, Globe, Monitor } from 'lucide-react'
-import { useI18n } from '../hooks/useI18n'
+import { useI18n, Language } from '../hooks/useI18n'
 import { ThemeMode } from '../hooks/useTheme'
 
 interface SettingsDialogProps {
@@ -20,7 +20,7 @@ export const SettingsDialog: React.FC<SettingsDialogProps> = ({
 
   if (!isOpen) return null
 
-  const handleLanguageChange = (newLanguage: any) => {
+  const handleLanguageChange = (newLanguage: Language) => {
     setLanguage(newLanguage)
   }
 

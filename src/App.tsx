@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { FileList } from "./components/FileList"
 import { Editor } from "./components/Editor"
 import { Header } from "./components/Header"
@@ -26,7 +26,7 @@ export interface TaggedFile extends ConfigFile {
 }
 
 function App() {
-  const { theme, setTheme, isDarkMode } = useTheme()
+  const { theme, setTheme } = useTheme()
   const { t } = useI18n()
   const [files, setFiles] = useState<TaggedFile[]>([])
   const [selectedFile, setSelectedFile] = useState<TaggedFile | null>(null)
@@ -41,12 +41,7 @@ function App() {
   const [showAddDialog, setShowAddDialog] = useState(false)
   const [showSettingsDialog, setShowSettingsDialog] = useState(false)
 
-  // Load config files on mount
-  useEffect(() => {
-    loadConfigFiles()
-  }, [])
-
-  const loadConfigFiles = async () => {
+  const loadConfigFiles = useCallback(async () => {
     try {
       if (!window.electronAPI) {
         console.warn("Electron API not available - running in web mode")
@@ -61,7 +56,12 @@ function App() {
     } catch (error) {
       console.error("Failed to load config files:", error)
     }
-  }
+  }, [fileTags])
+
+  // Load config files on mount
+  useEffect(() => {
+    loadConfigFiles()
+  }, [loadConfigFiles])
 
   const handleFileSelect = async (file: TaggedFile) => {
     if (!file.exists) {
@@ -160,7 +160,7 @@ function App() {
         } else if (result.success && result.files.length === 0) {
           alert(t('folder.noConfigFiles'))
         } else {
-          alert(t('folder.scanFailed', { error: result.error }))
+          alert(t('folder.scanFailed', { error: result.error || 'Unknown error' }))
         }
       }
     } catch (error) {
@@ -202,7 +202,7 @@ function App() {
       } else if (result.success && result.files.length === 0) {
         alert(t('folder.noConfigFiles'))
       } else {
-        alert(t('folder.scanFailed', { error: result.error }))
+        alert(t('folder.scanFailed', { error: result.error || 'Unknown error' }))
       }
     } catch (error) {
       console.error("Error adding folder by path:", error)

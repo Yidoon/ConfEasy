@@ -139,76 +139,75 @@ ipcMain.handle("select-folder", async () => {
   return null
 })
 
+// Common config file patterns
+const configPatterns = [
+  /\.(json|yml|yaml|toml|ini|conf|config)$/i,
+  /^\..*rc$/,
+  /^\..*profile$/,
+  /^\.gitconfig$/,
+  /^\.gitignore$/,
+  /^\.npmrc$/,
+  /^\.editorconfig$/,
+  /^Dockerfile$/i,
+  /^Makefile$/i,
+  /^hosts$/,
+  /^config$/,
+]
+
+async function scanDirectory(
+  dirPath: string,
+  files: Array<{ name: string; path: string; exists: boolean }>,
+  maxDepth = 2,
+  currentDepth = 0
+) {
+  if (currentDepth >= maxDepth) return
+
+  try {
+    const entries = await readdir(dirPath)
+
+    for (const entry of entries) {
+      const fullPath = join(dirPath, entry)
+
+      try {
+        const stats = await stat(fullPath)
+
+        if (stats.isFile()) {
+          // Check if file matches config patterns
+          const isConfigFile = configPatterns.some((pattern) =>
+            pattern.test(entry)
+          )
+
+          if (isConfigFile) {
+            files.push({
+              name: entry,
+              path: fullPath,
+              exists: true,
+            })
+          }
+        } else if (
+          stats.isDirectory() &&
+          !entry.startsWith(".") &&
+          entry !== "node_modules"
+        ) {
+          // Recursively scan subdirectories (but skip hidden dirs and node_modules)
+          await scanDirectory(fullPath, files, maxDepth, currentDepth + 1)
+        }
+      } catch (error) {
+        // Skip files/directories that can't be accessed
+        continue
+      }
+    }
+  } catch (error) {
+    // Skip directories that can't be read
+    return
+  }
+}
+
 // Scan folder for config files
 ipcMain.handle("scan-folder", async (_, folderPath: string) => {
   try {
     const files: Array<{ name: string; path: string; exists: boolean }> = []
-
-    // Common config file patterns
-    const configPatterns = [
-      /\.(json|yml|yaml|toml|ini|conf|config)$/i,
-      /^\..*rc$/,
-      /^\..*profile$/,
-      /^\.gitconfig$/,
-      /^\.gitignore$/,
-      /^\.npmrc$/,
-      /^\.editorconfig$/,
-      /^Dockerfile$/i,
-      /^Makefile$/i,
-      /^hosts$/,
-      /^config$/,
-    ]
-
-    async function scanDirectory(
-      dirPath: string,
-      maxDepth = 2,
-      currentDepth = 0
-    ) {
-      if (currentDepth >= maxDepth) return
-
-      try {
-        const entries = await readdir(dirPath)
-
-        for (const entry of entries) {
-          const fullPath = join(dirPath, entry)
-
-          try {
-            const stats = await stat(fullPath)
-
-            if (stats.isFile()) {
-              // Check if file matches config patterns
-              const isConfigFile = configPatterns.some((pattern) =>
-                pattern.test(entry)
-              )
-
-              if (isConfigFile) {
-                files.push({
-                  name: entry,
-                  path: fullPath,
-                  exists: true,
-                })
-              }
-            } else if (
-              stats.isDirectory() &&
-              !entry.startsWith(".") &&
-              entry !== "node_modules"
-            ) {
-              // Recursively scan subdirectories (but skip hidden dirs and node_modules)
-              await scanDirectory(fullPath, maxDepth, currentDepth + 1)
-            }
-          } catch (error) {
-            // Skip files/directories that can't be accessed
-            continue
-          }
-        }
-      } catch (error) {
-        // Skip directories that can't be read
-        return
-      }
-    }
-
-    await scanDirectory(folderPath)
-
+    await scanDirectory(folderPath, files)
     return { success: true, files }
   } catch (error) {
     return { success: false, error: (error as Error).message, files: [] }

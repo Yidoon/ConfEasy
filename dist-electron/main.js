@@ -104,53 +104,53 @@ electron.ipcMain.handle("select-folder", async () => {
   }
   return null;
 });
+const configPatterns = [
+  /\.(json|yml|yaml|toml|ini|conf|config)$/i,
+  /^\..*rc$/,
+  /^\..*profile$/,
+  /^\.gitconfig$/,
+  /^\.gitignore$/,
+  /^\.npmrc$/,
+  /^\.editorconfig$/,
+  /^Dockerfile$/i,
+  /^Makefile$/i,
+  /^hosts$/,
+  /^config$/
+];
+async function scanDirectory(dirPath, files, maxDepth = 2, currentDepth = 0) {
+  if (currentDepth >= maxDepth) return;
+  try {
+    const entries = await promises.readdir(dirPath);
+    for (const entry of entries) {
+      const fullPath = node_path.join(dirPath, entry);
+      try {
+        const stats = await promises.stat(fullPath);
+        if (stats.isFile()) {
+          const isConfigFile = configPatterns.some(
+            (pattern) => pattern.test(entry)
+          );
+          if (isConfigFile) {
+            files.push({
+              name: entry,
+              path: fullPath,
+              exists: true
+            });
+          }
+        } else if (stats.isDirectory() && !entry.startsWith(".") && entry !== "node_modules") {
+          await scanDirectory(fullPath, files, maxDepth, currentDepth + 1);
+        }
+      } catch (error) {
+        continue;
+      }
+    }
+  } catch (error) {
+    return;
+  }
+}
 electron.ipcMain.handle("scan-folder", async (_, folderPath) => {
   try {
     const files = [];
-    const configPatterns = [
-      /\.(json|yml|yaml|toml|ini|conf|config)$/i,
-      /^\..*rc$/,
-      /^\..*profile$/,
-      /^\.gitconfig$/,
-      /^\.gitignore$/,
-      /^\.npmrc$/,
-      /^\.editorconfig$/,
-      /^Dockerfile$/i,
-      /^Makefile$/i,
-      /^hosts$/,
-      /^config$/
-    ];
-    async function scanDirectory(dirPath, maxDepth = 2, currentDepth = 0) {
-      if (currentDepth >= maxDepth) return;
-      try {
-        const entries = await promises.readdir(dirPath);
-        for (const entry of entries) {
-          const fullPath = node_path.join(dirPath, entry);
-          try {
-            const stats = await promises.stat(fullPath);
-            if (stats.isFile()) {
-              const isConfigFile = configPatterns.some(
-                (pattern) => pattern.test(entry)
-              );
-              if (isConfigFile) {
-                files.push({
-                  name: entry,
-                  path: fullPath,
-                  exists: true
-                });
-              }
-            } else if (stats.isDirectory() && !entry.startsWith(".") && entry !== "node_modules") {
-              await scanDirectory(fullPath, maxDepth, currentDepth + 1);
-            }
-          } catch (error) {
-            continue;
-          }
-        }
-      } catch (error) {
-        return;
-      }
-    }
-    await scanDirectory(folderPath);
+    await scanDirectory(folderPath, files);
     return { success: true, files };
   } catch (error) {
     return { success: false, error: error.message, files: [] };
