@@ -34,6 +34,40 @@
 - 支持浅色/深色模式切换
 - 响应式布局适配不同屏幕尺寸
 
+## 📥 下载安装
+
+### 官方下载
+前往 [GitHub Releases](https://github.com/Yidoon/ConfEasy/releases) 下载最新版本：
+
+#### macOS
+- 下载 `confeasy-darwin-arm64-*.zip` 文件
+- 解压后将 `confeasy.app` 拖拽到应用程序文件夹
+- 首次运行可能需要在系统偏好设置中允许运行
+
+#### Windows  
+- 下载 `*.exe` 安装文件
+- 运行安装程序并按提示操作
+- Windows 可能会显示安全警告，选择"仍要运行"
+
+#### Linux
+- **Ubuntu/Debian 系统：** 下载 `.deb` 文件，运行 `sudo dpkg -i *.deb`
+- **CentOS/RHEL 系统：** 下载 `.rpm` 文件，运行 `sudo rpm -i *.rpm`
+
+### 开发版本
+如需最新开发版本，可以 clone 本仓库并本地构建：
+```bash
+git clone https://github.com/Yidoon/ConfEasy.git
+cd ConfEasy
+npm install
+npm run build
+npm run make
+```
+
+### 版本发布说明
+- 项目使用语义化版本控制
+- 稳定版本通过 GitHub Actions 自动构建和发布
+- 发布版本会同时提供 macOS、Windows 和 Linux 版本
+
 ## 🚀 技术栈
 
 - **Electron** - 跨平台桌面应用框架
