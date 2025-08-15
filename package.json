@@ -1,6 +1,6 @@
 {
   "name": "confeasy",
-  "productName": "ConfEasy",
+  "productName": "confeasy",
   "version": "1.0.0",
   "description": "A tool to help you quickly modify local configuration files",
   "main": "dist-electron/main.js",
