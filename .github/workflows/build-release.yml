@@ -42,14 +42,14 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: macos-build
-          path: out/make/zip/darwin/x64/*.zip
+          path: out/make/zip/darwin/**/*.zip
 
       - name: Upload artifacts (Windows)
         if: matrix.os == 'windows-latest'
         uses: actions/upload-artifact@v4
         with:
           name: windows-build
-          path: out/make/squirrel.windows/x64/*.exe
+          path: out/make/squirrel.windows/**/*.exe
 
       - name: Upload artifacts (Linux)
         if: matrix.os == 'ubuntu-latest'
@@ -57,8 +57,8 @@ jobs:
         with:
           name: linux-build
           path: |
-            out/make/deb/x64/*.deb
-            out/make/rpm/x64/*.rpm
+            out/make/deb/**/*.deb
+            out/make/rpm/**/*.rpm
 
   release:
     needs: build
