@@ -2,7 +2,6 @@ name: Build and Release
 
 on:
   push:
-    branches: [main]
     tags: ["v*"]
   pull_request:
     branches: [main]
@@ -65,60 +64,11 @@ jobs:
             out/make/deb/**/*.deb
             out/make/rpm/**/*.rpm
 
-  create-tag:
-    needs: build
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-    outputs:
-      new_tag: ${{ steps.tag_version.outputs.new_tag }}
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Get latest tag
-        id: get_latest_tag
-        run: |
-          # Get the latest tag, or use v0.0.0 if none exists
-          LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
-          echo "latest_tag=$LATEST_TAG" >> $GITHUB_OUTPUT
-          echo "Latest tag found: $LATEST_TAG"
-
-      - name: Bump version
-        id: tag_version
-        run: |
-          # Extract version from latest tag and auto-increment
-          LATEST_TAG="${{ steps.get_latest_tag.outputs.latest_tag }}"
-          VERSION=${LATEST_TAG#v}
-
-          # Split version number
-          IFS='.' read -r MAJOR MINOR PATCH <<< "$VERSION"
-
-          # Increment PATCH version
-          PATCH=$((PATCH + 1))
-
-          # Create new version
-          NEW_TAG="v${MAJOR}.${MINOR}.${PATCH}"
-          echo "new_tag=$NEW_TAG" >> $GITHUB_OUTPUT
-          echo "Creating new tag: $NEW_TAG"
-
-      - name: Create and push tag
-        run: |
-          git config user.name "GitHub Actions"
-          git config user.email "actions@github.com"
-          git tag ${{ steps.tag_version.outputs.new_tag }}
-          git push origin ${{ steps.tag_version.outputs.new_tag }}
 
   release:
-    needs: [build, create-tag]
+    needs: build
     runs-on: ubuntu-latest
-    if: |
-      always() && 
-      (startsWith(github.ref, 'refs/tags/v') || 
-       (github.ref == 'refs/heads/main' && needs.create-tag.result == 'success' && needs.create-tag.outputs.new_tag != ''))
+    if: startsWith(github.ref, 'refs/tags/v')
 
     steps:
       - name: Checkout code
@@ -145,11 +95,8 @@ jobs:
       - name: Get tag name
         id: tag
         run: |
-          if [[ "${{ github.ref }}" == refs/tags/* ]]; then
-            echo "name=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
-          else
-            echo "name=${{ needs.create-tag.outputs.new_tag }}" >> $GITHUB_OUTPUT
-          fi
+          echo "name=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+          echo "Tag name: ${GITHUB_REF#refs/tags/}"
 
       - name: List artifacts for debugging
         run: |
