@@ -1,7 +1,7 @@
 {
   "name": "confeasy",
   "productName": "ConfEasy",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "A tool to help you quickly modify local configuration files",
   "main": "dist-electron/main.js",
   "scripts": {
@@ -13,7 +13,11 @@
     "make": "electron-forge make",
     "publish": "electron-forge publish",
     "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-    "generate-icons": "npx electron-icon-builder --input=./public/logo.png --output=./public --flatten"
+    "generate-icons": "npx electron-icon-builder --input=./public/logo.png --output=./public --flatten",
+    "release:patch": "node scripts/release-tag.js mini",
+    "release:minor": "node scripts/release-tag.js mid",
+    "release:major": "node scripts/release-tag.js big",
+    "release": "node scripts/release-tag.js"
   },
   "keywords": [
     "electron",
