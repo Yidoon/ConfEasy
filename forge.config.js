@@ -15,7 +15,11 @@ module.exports = {
   makers: [
     {
       name: '@electron-forge/maker-squirrel',
-      config: {},
+      config: {
+        // Windows configuration
+        name: 'ConfEasy',
+        exe: 'ConfEasy.exe'
+      },
     },
     {
       name: '@electron-forge/maker-zip',
@@ -23,11 +27,29 @@ module.exports = {
     },
     {
       name: '@electron-forge/maker-deb',
-      config: {},
+      config: {
+        options: {
+          // Debian package configuration
+          maintainer: 'Yidoon',
+          homepage: 'https://github.com/Yidoon/ConfEasy',
+          name: 'confeasy',  // Debian package name (must be lowercase)
+          productName: 'ConfEasy',
+          bin: 'ConfEasy',  // Executable file name
+          executableName: 'ConfEasy'  // Ensure correct executable name is used
+        }
+      },
     },
     {
       name: '@electron-forge/maker-rpm',
-      config: {},
+      config: {
+        options: {
+          // RPM package configuration
+          name: 'confeasy',  // RPM package name (typically lowercase)
+          productName: 'ConfEasy',
+          bin: 'ConfEasy',  // Executable file name
+          executableName: 'ConfEasy'  // Ensure correct executable name is used
+        }
+      },
     },
   ],
   plugins: [
