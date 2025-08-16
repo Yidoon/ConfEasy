@@ -1,6 +1,11 @@
+<div align="center">
+  <img src="public/logo.png" alt="ConfEasy Logo" width="128" height="128">
+  
 # ConfEasy - 配置文件管理工具
 
 一个帮你快速修改本地配置文件的 Electron 桌面应用，让配置文件管理变得简单高效。
+
+</div>
 
 ## ✨ 主要功能
 
@@ -37,24 +42,39 @@
 ## 📥 下载安装
 
 ### 官方下载
+
 前往 [GitHub Releases](https://github.com/Yidoon/ConfEasy/releases) 下载最新版本：
 
 #### macOS
+
 - 下载 `confeasy-darwin-arm64-*.zip` 文件
 - 解压后将 `confeasy.app` 拖拽到应用程序文件夹
-- 首次运行可能需要在系统偏好设置中允许运行
+- **重要：解决"已损坏"警告的方法**
+  1. 如果出现"confeasy 已损坏，无法打开"警告，**不要**移到废纸篓
+  2. **方法一（推荐）**：右键点击应用图标，选择"打开"，在弹出的对话框中点击"打开"
+  3. **方法二**：打开终端，运行以下命令移除隔离属性：
+     ```bash
+     sudo xattr -rd com.apple.quarantine /Applications/confeasy.app
+     ```
+  4. **方法三**：系统偏好设置 → 安全性与隐私 → 通用 → 找到被阻止的应用，点击"仍要打开"
+- 完成首次安全验证后，后续运行将正常，无需重复操作
+- 注意：此警告是因为应用未经 Apple 签名认证，但软件本身是安全的
 
-#### Windows  
+#### Windows
+
 - 下载 `*.exe` 安装文件
 - 运行安装程序并按提示操作
 - Windows 可能会显示安全警告，选择"仍要运行"
 
 #### Linux
+
 - **Ubuntu/Debian 系统：** 下载 `.deb` 文件，运行 `sudo dpkg -i *.deb`
 - **CentOS/RHEL 系统：** 下载 `.rpm` 文件，运行 `sudo rpm -i *.rpm`
 
 ### 开发版本
+
 如需最新开发版本，可以 clone 本仓库并本地构建：
+
 ```bash
 git clone https://github.com/Yidoon/ConfEasy.git
 cd ConfEasy
@@ -64,6 +84,7 @@ npm run make
 ```
 
 ### 版本发布说明
+
 - 项目使用语义化版本控制
 - 稳定版本通过 GitHub Actions 自动构建和发布
 - 发布版本会同时提供 macOS、Windows 和 Linux 版本
