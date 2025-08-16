@@ -4,8 +4,8 @@ const { FuseV1Options, FuseVersion } = require('@electron/fuses');
 module.exports = {
   packagerConfig: {
     asar: true,
-    icon: './public/logo.png',
-    executableName: 'confeasy',
+    icon: './public/icons/icon',
+    executableName: 'ConfEasy',
     extraResource: [
       './dist',
       './dist-electron'
