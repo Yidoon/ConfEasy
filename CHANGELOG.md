@@ -1,130 +1,87 @@
-# ConfEasy 更新日志
+# Changelog / 更新日志
 
-## 最新更新 - 2025 年 8 月 6 日
+All notable changes to this project will be documented in this file.  
+本项目的所有重要更改都将记录在此文件中。
 
-### 🎉 新增功能
+## [0.0.5] - 2025-01-17
 
-#### 1. 文件移除功能
+### Added / 新增
+- 🗂️ **Folder Management / 文件夹管理**
+  - Support for adding and managing entire folders / 支持添加和管理整个文件夹
+  - Recursive scanning for configuration files in folders / 递归扫描文件夹中的配置文件
+  - Folder expand/collapse functionality / 文件夹展开/折叠功能
+  - Tag support for folders / 文件夹标签支持
+  - Remove folders from management list / 从管理列表中移除文件夹
+  - Show folders in system file manager / 在系统文件管理器中显示文件夹
 
-- ✅ **安全移除**: 添加了文件移除按钮（垃圾桶图标）
-- ✅ **确认对话框**: 移除前会显示确认提示，明确说明只移除管理关联，不删除实际文件
-- ✅ **智能清理**: 移除文件时会自动清理相关标签和选择状态
-- ✅ **用户友好**: 提供明确的警告信息，避免用户误解
+- 🎨 **UI Improvements / 界面改进**
+  - Custom logo display in header / 在标题栏显示自定义 Logo
+  - Enhanced bilingual support (Chinese/English) / 增强的双语支持（中英文）
+  - Improved documentation with English version / 改进文档并添加英文版本
 
-#### 2. 编辑器体验优化
+### Changed / 变更
+- Updated README with comprehensive feature list / 更新 README 包含完整功能列表
+- Improved i18n implementation / 改进国际化实现
 
-- ✅ **高度修复**: 编辑器现在占满整个容器的剩余高度
-- ✅ **更好的布局**: 使用 flex 布局确保编辑器充分利用可用空间
-- ✅ **无边框设计**: 移除了多余的边框，提供更沉浸的编辑体验
-- ✅ **保存确认**: 修改文件后必须点击保存按钮才会生效
+### Fixed / 修复
+- ESLint warnings in useEffect dependencies / 修复 useEffect 依赖的 ESLint 警告
 
-#### 3. 标签管理增强
+## [0.0.4] - 2025-01-16
 
-- ✅ **标签删除**: 支持删除不需要的标签
-- ✅ **批量清理**: 删除标签时会自动从所有文件中移除
-- ✅ **确认机制**: 删除前会显示确认对话框
-- ✅ **状态同步**: 删除后会自动更新过滤状态
+### Added / 新增
+- 🏷️ **Tag Management System / 标签管理系统**
+  - Create custom tags with colors / 创建带颜色的自定义标签
+  - Filter files by tags / 按标签过滤文件
+  - Bulk tag operations / 批量标签操作
 
-#### 4. 默认配置文件库
+- 🌍 **Internationalization / 国际化**
+  - Chinese/English language switching / 中英文语言切换
+  - Complete UI translation / 完整的界面翻译
 
-- ✅ **分类展示**: 按类别组织常用配置文件（Shell、开发工具、系统、编辑器）
-- ✅ **一键添加**: 点击即可快速添加到管理列表
-- ✅ **智能路径**: 自动处理不同操作系统的路径差异
-- ✅ **详细说明**: 每个配置文件都有清晰的描述和路径信息
+### Changed / 变更
+- Improved file list UI / 改进文件列表界面
+- Enhanced dark mode support / 增强深色模式支持
 
-#### 5. 用户界面改进
+## [0.0.3] - 2025-01-15
 
-- ✅ **标签式对话框**: 添加文件对话框现在支持两个标签页
-- ✅ **响应式布局**: 对话框支持更大的尺寸和滚动
-- ✅ **视觉优化**: 改进了按钮样式和交互反馈
-- ✅ **状态指示**: 更清晰的文件状态和操作反馈
+### Added / 新增
+- 🎨 **Theme Support / 主题支持**
+  - Light/Dark theme switching / 浅色/深色主题切换
+  - System theme following option / 跟随系统主题选项
 
-### 🔧 技术改进
+- 📝 **Editor Enhancements / 编辑器增强**
+  - Monaco Editor integration / 集成 Monaco 编辑器
+  - Syntax highlighting for multiple languages / 多语言语法高亮
+  - Unsaved changes indicator / 未保存更改指示器
 
-#### 文件路径处理
+### Fixed / 修复
+- File path resolution on different platforms / 不同平台的文件路径解析
+- Save functionality for non-existent files / 不存在文件的保存功能
 
-- 支持 `~` 符号自动展开为用户主目录
-- 跨平台路径兼容性
-- 更可靠的文件存在性检查
+## [0.0.2] - 2025-01-14
 
-#### 状态管理
+### Added / 新增
+- 📁 **File Management / 文件管理**
+  - Auto-detect common config files / 自动检测常见配置文件
+  - Manual file/folder addition / 手动添加文件/文件夹
+  - File existence detection / 文件存在性检测
 
-- 优化了文件列表的状态同步
-- 改进了标签数据的持久化
-- 更好的错误处理和用户反馈
+- ⚡ **Core Features / 核心功能**
+  - Quick save with Ctrl+S/Cmd+S / 使用 Ctrl+S/Cmd+S 快速保存
+  - Show in Finder/Explorer / 在 Finder/资源管理器中显示
 
-#### 用户体验
+## [0.0.1] - 2025-01-13
 
-- 减少了不必要的确认步骤
-- 提供了更直观的操作流程
-- 增强了视觉反馈和状态指示
-
-### 📋 支持的默认配置文件
-
-#### Shell 配置
-
-- `.zshrc` - Zsh shell 配置文件
-- `.bashrc` - Bash shell 配置文件
-- `.bash_profile` - Bash 登录配置文件
-
-#### 开发工具
-
-- `.gitconfig` - Git 全局配置文件
-- `.npmrc` - npm 配置文件
-- VS Code 设置 - Visual Studio Code 用户设置
-
-#### 系统配置
-
-- `hosts` - 系统 hosts 文件
-- SSH 配置 - SSH 客户端配置文件
-
-#### 编辑器配置
-
-- `.vimrc` - Vim 编辑器配置文件
-- `.editorconfig` - EditorConfig 全局配置
-
-### 🎯 使用指南
-
-#### 移除文件
-
-1. 将鼠标悬停在文件上
-2. 点击红色垃圾桶图标
-3. 在确认对话框中点击"确认移除"
-
-#### 管理标签
-
-1. 点击文件旁的标签图标
-2. 勾选或取消勾选标签
-3. 点击标签旁的垃圾桶图标可删除标签
-4. 点击"创建新标签"添加自定义标签
-
-#### 添加默认配置文件
-
-1. 点击"添加文件"按钮
-2. 选择"常用配置"标签页
-3. 点击想要添加的配置文件
-4. 系统会自动检查文件是否存在并添加到列表
-
-#### 编辑文件
-
-1. 点击文件选择
-2. 在右侧编辑器中修改内容
-3. 使用 Ctrl+S (Cmd+S) 或点击保存按钮
-4. 系统会显示保存状态和结果
-
-### 🔄 兼容性
-
-- ✅ macOS, Windows, Linux 全平台支持
-- ✅ 自动适配不同操作系统的文件路径
-- ✅ 保持向后兼容，现有数据不受影响
-
-### 📈 性能优化
-
-- 优化了文件列表的渲染性能
-- 减少了不必要的状态更新
-- 改进了大文件的处理能力
-- 更快的标签过滤响应速度
+### Initial Release / 初始版本
+- 🚀 Basic Electron + React + TypeScript setup / 基础 Electron + React + TypeScript 架构
+- 📝 Simple config file editing / 简单的配置文件编辑
+- 💾 File read/write functionality / 文件读写功能
+- 🖥️ Cross-platform support (macOS, Windows, Linux) / 跨平台支持
 
 ---
 
-**总结**: 此次更新大幅提升了 ConfEasy 的易用性和功能完整性，让配置文件管理变得更加高效和直观。所有功能都经过精心设计，确保用户能够安全、便捷地管理他们的配置文件。
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+本文档格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.0.0/)，
+并且本项目遵循[语义化版本](https://semver.org/lang/zh-CN/)。

@@ -12,6 +12,23 @@ export interface FileResult {
   error?: string
 }
 
+export interface FileSystemItem {
+  name: string
+  path: string
+  type: 'file' | 'folder'
+  exists: boolean
+  tags?: string[]
+  children?: FileSystemItem[]
+  expanded?: boolean
+  isLoading?: boolean
+}
+
+export interface FolderTreeResult {
+  success: boolean
+  items: FileSystemItem[]
+  error?: string
+}
+
 // Expose protected methods that allow the renderer process to use
 // the ipcRenderer without exposing the entire object
 contextBridge.exposeInMainWorld("electronAPI", {
@@ -47,6 +64,13 @@ contextBridge.exposeInMainWorld("electronAPI", {
     isFile: boolean
     isDirectory: boolean
   }> => ipcRenderer.invoke("check-path", inputPath),
+  scanFolderTree: (
+    folderPath: string,
+    maxDepth?: number
+  ): Promise<FolderTreeResult> => ipcRenderer.invoke("scan-folder-tree", folderPath, maxDepth),
+  getFolderContents: (
+    folderPath: string
+  ): Promise<FolderTreeResult> => ipcRenderer.invoke("get-folder-contents", folderPath),
 })
 
 declare global {
@@ -74,6 +98,8 @@ declare global {
         isFile: boolean
         isDirectory: boolean
       }>
+      scanFolderTree: (folderPath: string, maxDepth?: number) => Promise<FolderTreeResult>
+      getFolderContents: (folderPath: string) => Promise<FolderTreeResult>
     }
   }
 }

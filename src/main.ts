@@ -139,19 +139,17 @@ ipcMain.handle("select-folder", async () => {
   return null
 })
 
-// Common config file patterns
-const configPatterns = [
-  /\.(json|yml|yaml|toml|ini|conf|config)$/i,
-  /^\..*rc$/,
-  /^\..*profile$/,
-  /^\.gitconfig$/,
-  /^\.gitignore$/,
-  /^\.npmrc$/,
-  /^\.editorconfig$/,
-  /^Dockerfile$/i,
-  /^Makefile$/i,
-  /^hosts$/,
-  /^config$/,
+// Binary file patterns to exclude
+const binaryPatterns = [
+  /\.(exe|dll|so|dylib|dmg|pkg|deb|rpm)$/i,  // Executable files
+  /\.(zip|tar|gz|bz2|7z|rar|xz)$/i,          // Compressed files
+  /\.(jpg|jpeg|png|gif|bmp|ico|svg|webp)$/i, // Image files
+  /\.(mp3|mp4|avi|mov|wmv|flv|wav|flac)$/i,  // Audio/video files
+  /\.(pdf|doc|docx|xls|xlsx|ppt|pptx)$/i,    // Office documents
+  /\.(ttf|otf|woff|woff2|eot)$/i,            // Font files
+  /\.(bin|dat|db|sqlite)$/i,                 // Data files
+  /\.DS_Store$/,                             // macOS system files
+  /^Thumbs\.db$/,                            // Windows system files
 ]
 
 async function scanDirectory(
@@ -172,12 +170,12 @@ async function scanDirectory(
         const stats = await stat(fullPath)
 
         if (stats.isFile()) {
-          // Check if file matches config patterns
-          const isConfigFile = configPatterns.some((pattern) =>
+          // Exclude binary files, show all others
+          const isBinary = binaryPatterns.some((pattern) =>
             pattern.test(entry)
           )
 
-          if (isConfigFile) {
+          if (!isBinary) {
             files.push({
               name: entry,
               path: fullPath,
@@ -203,7 +201,7 @@ async function scanDirectory(
   }
 }
 
-// Scan folder for config files
+// Scan folder for config files (flat list)
 ipcMain.handle("scan-folder", async (_, folderPath: string) => {
   try {
     const files: Array<{ name: string; path: string; exists: boolean }> = []
@@ -211,6 +209,155 @@ ipcMain.handle("scan-folder", async (_, folderPath: string) => {
     return { success: true, files }
   } catch (error) {
     return { success: false, error: (error as Error).message, files: [] }
+  }
+})
+
+// Type definition for file system item
+interface FileSystemItem {
+  name: string
+  path: string
+  type: 'file' | 'folder'
+  exists: boolean
+  tags?: string[]
+  children?: FileSystemItem[]
+  expanded?: boolean
+  isLoading?: boolean
+}
+
+// Helper function to build only direct children (no recursion)
+async function buildDirectChildren(dirPath: string): Promise<FileSystemItem[]> {
+  const items: FileSystemItem[] = []
+  console.log('[Backend] Scanning directory:', dirPath)
+  
+  try {
+    const entries = await readdir(dirPath)
+    console.log('[Backend] Found', entries.length, 'entries in', dirPath)
+    
+    for (const entry of entries) {
+      const fullPath = join(dirPath, entry)
+      
+      try {
+        const stats = await stat(fullPath)
+        
+        if (stats.isDirectory()) {
+          if (entry !== "node_modules" && entry !== ".git") {
+            items.push({
+              name: entry,
+              path: fullPath,
+              type: 'folder',
+              exists: true,
+              tags: [],
+              children: undefined, // undefined indicates not loaded yet
+              expanded: false,
+            })
+          }
+        } else if (stats.isFile()) {
+          // Exclude binary files, show all others
+          const isBinary = binaryPatterns.some((pattern) => pattern.test(entry))
+          if (!isBinary) {
+            items.push({
+              name: entry,
+              path: fullPath,
+              type: 'file',
+              exists: true,
+              tags: [],
+            })
+          } else {
+            console.log('[Backend] Excluded binary file:', entry)
+          }
+        }
+      } catch (error) {
+        continue
+      }
+    }
+  } catch (error) {
+    console.log('[Backend] Error reading directory:', dirPath, error)
+  }
+  
+  console.log('[Backend] Returning', items.length, 'items for', dirPath)
+  return items
+}
+
+// Helper function to build tree structure (keep for initial folder scan)
+async function buildFileSystemTree(
+  dirPath: string,
+  maxDepth = 2,
+  currentDepth = 0
+): Promise<FileSystemItem[]> {
+  const items: FileSystemItem[] = []
+
+  if (currentDepth >= maxDepth) return items
+
+  try {
+    const entries = await readdir(dirPath)
+
+    for (const entry of entries) {
+      const fullPath = join(dirPath, entry)
+
+      try {
+        const stats = await stat(fullPath)
+
+        if (stats.isDirectory()) {
+          // Add folder
+          const folder = {
+            name: entry,
+            path: fullPath,
+            type: 'folder' as const,
+            exists: true,
+            children: undefined as FileSystemItem[] | undefined
+          }
+
+          // Skip certain directories
+          if (entry !== "node_modules" && entry !== ".git") {
+            // We'll load children lazily when folder is expanded
+            folder.children = undefined
+          }
+
+          items.push(folder)
+        } else if (stats.isFile()) {
+          // Exclude binary files, show all others
+          const isBinary = binaryPatterns.some((pattern) =>
+            pattern.test(entry)
+          )
+
+          if (!isBinary) {
+            items.push({
+              name: entry,
+              path: fullPath,
+              type: 'file' as const,
+              exists: true
+            })
+          }
+        }
+      } catch (error) {
+        // Skip files/directories that can't be accessed
+        continue
+      }
+    }
+  } catch (error) {
+    // Skip directories that can't be read
+  }
+
+  return items
+}
+
+// Scan folder and return tree structure
+ipcMain.handle("scan-folder-tree", async (_, folderPath: string, maxDepth = 3) => {
+  try {
+    const items = await buildFileSystemTree(folderPath, maxDepth)
+    return { success: true, items }
+  } catch (error) {
+    return { success: false, error: (error as Error).message, items: [] }
+  }
+})
+
+// Get immediate children of a folder (only direct children)
+ipcMain.handle("get-folder-contents", async (_, folderPath: string) => {
+  try {
+    const items = await buildDirectChildren(folderPath)
+    return { success: true, items }
+  } catch (error) {
+    return { success: false, error: (error as Error).message, items: [] }
   }
 })
 

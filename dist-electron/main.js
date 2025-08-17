@@ -104,18 +104,25 @@ electron.ipcMain.handle("select-folder", async () => {
   }
   return null;
 });
-const configPatterns = [
-  /\.(json|yml|yaml|toml|ini|conf|config)$/i,
-  /^\..*rc$/,
-  /^\..*profile$/,
-  /^\.gitconfig$/,
-  /^\.gitignore$/,
-  /^\.npmrc$/,
-  /^\.editorconfig$/,
-  /^Dockerfile$/i,
-  /^Makefile$/i,
-  /^hosts$/,
-  /^config$/
+const binaryPatterns = [
+  /\.(exe|dll|so|dylib|dmg|pkg|deb|rpm)$/i,
+  // Executable files
+  /\.(zip|tar|gz|bz2|7z|rar|xz)$/i,
+  // Compressed files
+  /\.(jpg|jpeg|png|gif|bmp|ico|svg|webp)$/i,
+  // Image files
+  /\.(mp3|mp4|avi|mov|wmv|flv|wav|flac)$/i,
+  // Audio/video files
+  /\.(pdf|doc|docx|xls|xlsx|ppt|pptx)$/i,
+  // Office documents
+  /\.(ttf|otf|woff|woff2|eot)$/i,
+  // Font files
+  /\.(bin|dat|db|sqlite)$/i,
+  // Data files
+  /\.DS_Store$/,
+  // macOS system files
+  /^Thumbs\.db$/
+  // Windows system files
 ];
 async function scanDirectory(dirPath, files, maxDepth = 2, currentDepth = 0) {
   if (currentDepth >= maxDepth) return;
@@ -126,10 +133,10 @@ async function scanDirectory(dirPath, files, maxDepth = 2, currentDepth = 0) {
       try {
         const stats = await promises.stat(fullPath);
         if (stats.isFile()) {
-          const isConfigFile = configPatterns.some(
+          const isBinary = binaryPatterns.some(
             (pattern) => pattern.test(entry)
           );
-          if (isConfigFile) {
+          if (!isBinary) {
             files.push({
               name: entry,
               path: fullPath,
@@ -154,6 +161,111 @@ electron.ipcMain.handle("scan-folder", async (_, folderPath) => {
     return { success: true, files };
   } catch (error) {
     return { success: false, error: error.message, files: [] };
+  }
+});
+async function buildDirectChildren(dirPath) {
+  const items = [];
+  console.log("[Backend] Scanning directory:", dirPath);
+  try {
+    const entries = await promises.readdir(dirPath);
+    console.log("[Backend] Found", entries.length, "entries in", dirPath);
+    for (const entry of entries) {
+      const fullPath = node_path.join(dirPath, entry);
+      try {
+        const stats = await promises.stat(fullPath);
+        if (stats.isDirectory()) {
+          if (entry !== "node_modules" && entry !== ".git") {
+            items.push({
+              name: entry,
+              path: fullPath,
+              type: "folder",
+              exists: true,
+              tags: [],
+              children: void 0,
+              // undefined indicates not loaded yet
+              expanded: false
+            });
+          }
+        } else if (stats.isFile()) {
+          const isBinary = binaryPatterns.some((pattern) => pattern.test(entry));
+          if (!isBinary) {
+            items.push({
+              name: entry,
+              path: fullPath,
+              type: "file",
+              exists: true,
+              tags: []
+            });
+          } else {
+            console.log("[Backend] Excluded binary file:", entry);
+          }
+        }
+      } catch (error) {
+        continue;
+      }
+    }
+  } catch (error) {
+    console.log("[Backend] Error reading directory:", dirPath, error);
+  }
+  console.log("[Backend] Returning", items.length, "items for", dirPath);
+  return items;
+}
+async function buildFileSystemTree(dirPath, maxDepth = 2, currentDepth = 0) {
+  const items = [];
+  if (currentDepth >= maxDepth) return items;
+  try {
+    const entries = await promises.readdir(dirPath);
+    for (const entry of entries) {
+      const fullPath = node_path.join(dirPath, entry);
+      try {
+        const stats = await promises.stat(fullPath);
+        if (stats.isDirectory()) {
+          const folder = {
+            name: entry,
+            path: fullPath,
+            type: "folder",
+            exists: true,
+            children: void 0
+          };
+          if (entry !== "node_modules" && entry !== ".git") {
+            folder.children = void 0;
+          }
+          items.push(folder);
+        } else if (stats.isFile()) {
+          const isBinary = binaryPatterns.some(
+            (pattern) => pattern.test(entry)
+          );
+          if (!isBinary) {
+            items.push({
+              name: entry,
+              path: fullPath,
+              type: "file",
+              exists: true
+            });
+          }
+        }
+      } catch (error) {
+        continue;
+      }
+    }
+  } catch (error) {
+  }
+  return items;
+}
+electron.ipcMain.handle("scan-folder-tree", async (_, folderPath, maxDepth = 3) => {
+  try {
+    const items = await buildFileSystemTree(folderPath, maxDepth);
+    return { success: true, items };
+  } catch (error) {
+    return { success: false, error: error.message, items: [] };
+  }
+});
+electron.ipcMain.handle("get-folder-contents", async (_, folderPath) => {
+  try {
+    const items = await buildDirectChildren(folderPath);
+    return { success: true, items };
+  } catch (error) {
+    return { success: false, error: error.message, items: [] };
   }
 });
 electron.ipcMain.handle("show-item-in-folder", async (_, filePath) => {

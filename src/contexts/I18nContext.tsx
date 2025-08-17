@@ -88,6 +88,15 @@ const messages: I18nMessages = {
     'config.ssh.desc': 'SSH 客户端配置文件',
     'config.vimrc.desc': 'Vim 编辑器配置文件',
     'config.editorconfig.desc': 'EditorConfig 全局配置',
+    'folder.expand': '展开文件夹',
+    'folder.collapse': '折叠文件夹',
+    'folder.loading': '加载中...',
+    'folder.empty': '文件夹为空',
+    'folder.remove.title': '移除文件夹',
+    'folder.remove.message': '确定要从管理列表中移除文件夹 "{folderName}" 吗？',
+    'folder.remove.note': '注意：这只会从应用中移除文件夹，不会删除实际文件夹及其内容。',
+    'folder.tag.manage': '管理文件夹标签',
+    'folder.showInFolder': '在文件管理器中显示',
   },
   en: {
     'app.title': 'ConfEasy',
@@ -169,6 +178,15 @@ const messages: I18nMessages = {
     'config.ssh.desc': 'SSH client configuration file',
     'config.vimrc.desc': 'Vim editor configuration file',
     'config.editorconfig.desc': 'EditorConfig global configuration',
+    'folder.expand': 'Expand folder',
+    'folder.collapse': 'Collapse folder',
+    'folder.loading': 'Loading...',
+    'folder.empty': 'Folder is empty',
+    'folder.remove.title': 'Remove Folder',
+    'folder.remove.message': 'Are you sure you want to remove the folder "{folderName}" from the list?',
+    'folder.remove.note': 'Note: This will only remove the folder from the app, not delete the actual folder and its contents.',
+    'folder.tag.manage': 'Manage folder tags',
+    'folder.showInFolder': 'Show in file manager',
   }
 }
 

@@ -1,9 +1,17 @@
 {
   "name": "confeasy",
   "productName": "ConfEasy",
-  "version": "0.0.4",
-  "description": "A tool to help you quickly modify local configuration files",
+  "version": "0.0.5",
+  "description": "A desktop application for managing configuration files / 配置文件管理桌面应用",
   "main": "dist-electron/main.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Yidoon/ConfEasy.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Yidoon/ConfEasy/issues"
+  },
+  "homepage": "https://github.com/Yidoon/ConfEasy#readme",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
@@ -22,7 +30,12 @@
   "keywords": [
     "electron",
     "config",
-    "tool"
+    "configuration",
+    "tool",
+    "manager",
+    "editor",
+    "desktop",
+    "cross-platform"
   ],
   "author": {
     "name": "Yidoon",

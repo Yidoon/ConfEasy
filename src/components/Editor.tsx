@@ -68,6 +68,8 @@ const getLanguageFromPath = (filePath: string): string => {
     htm: "html",
     md: "markdown",
     txt: "plaintext",
+    jsonl: "plaintext",  // JSON Lines - each line is a separate JSON object
+    ndjson: "plaintext", // Newline Delimited JSON (same as jsonl)
   }
 
   // Special file name mappings
@@ -81,6 +83,11 @@ const getLanguageFromPath = (filePath: string): string => {
     return "dockerfile"
   if (fileName === "makefile" || fileName.startsWith("makefile."))
     return "makefile"
+  
+  // Special handling for JSONL files
+  if (extension === "jsonl" || extension === "ndjson") {
+    return "plaintext" // Use plaintext to avoid JSON formatting errors
+  }
 
   return languageMap[extension || ""] || "plaintext"
 }
@@ -134,6 +141,9 @@ export const Editor: React.FC<EditorProps> = ({
           // Theme might already be defined
         }
 
+        // Check if it's a JSONL file
+        const isJsonlFile = file.path.endsWith('.jsonl') || file.path.endsWith('.ndjson')
+        
         monacoEditor.current = monaco.editor.create(editorRef.current, {
           value: content || "",
           language: getLanguageFromPath(file.path),
@@ -150,6 +160,9 @@ export const Editor: React.FC<EditorProps> = ({
           tabSize: 2,
           insertSpaces: true,
           detectIndentation: true,
+          // Disable formatting for JSONL files
+          formatOnPaste: !isJsonlFile,
+          formatOnType: !isJsonlFile,
         })
 
         monacoEditor.current.onDidChangeModelContent(() => {

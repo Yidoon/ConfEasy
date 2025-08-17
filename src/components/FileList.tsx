@@ -1,31 +1,71 @@
 import React, { useState } from "react"
 import { File, FileX, FolderOpen, Tag, Trash2, X, Plus } from "lucide-react"
-import { TaggedFile, FileTag } from "../App"
+import { TaggedFile, FileTag, FileSystemItem } from "../App"
 import { TagManager } from "./TagManager"
+import { FileTreeItem } from "./FileTreeItem"
 import { useI18n } from "../hooks/useI18n"
 
 interface FileListProps {
   files: TaggedFile[]
+  fileSystemItems: FileSystemItem[]
+  expandedFolders: Set<string>
   selectedFile: TaggedFile | null
   onFileSelect: (file: TaggedFile) => void
+  onItemSelect: (item: FileSystemItem) => void
+  onToggleFolder: (path: string) => void
   tags: FileTag[]
   onTagUpdate: (filePath: string, tags: string[]) => void
   onTagCreate: (tag: FileTag) => void
   onTagDelete: (tagId: string) => void
   onFileRemove: (file: TaggedFile) => void
+  onFileSystemItemRemove: (item: FileSystemItem) => void
   onAddFile: () => void
+  fileTags: Record<string, string[]>
+}
+
+// Helper functions to count items in tree
+const countTotalItems = (items: FileSystemItem[]): number => {
+  let count = 0
+  for (const item of items) {
+    if (item.type === 'file') {
+      count++
+    }
+    if (item.children) {
+      count += countTotalItems(item.children)
+    }
+  }
+  return count
+}
+
+const countExistingItems = (items: FileSystemItem[]): number => {
+  let count = 0
+  for (const item of items) {
+    if (item.type === 'file' && item.exists) {
+      count++
+    }
+    if (item.children) {
+      count += countExistingItems(item.children)
+    }
+  }
+  return count
 }
 
 export const FileList: React.FC<FileListProps> = ({
   files,
+  fileSystemItems,
+  expandedFolders,
   selectedFile,
   onFileSelect,
+  onItemSelect,
+  onToggleFolder,
   tags,
   onTagUpdate,
   onTagCreate,
   onTagDelete,
   onFileRemove,
+  onFileSystemItemRemove,
   onAddFile,
+  fileTags,
 }) => {
   const { t } = useI18n()
   const [showTagManager, setShowTagManager] = useState<string | null>(null)
@@ -62,16 +102,50 @@ export const FileList: React.FC<FileListProps> = ({
           {t('fileList.title')}
         </h2>
         <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-          {t('fileList.stats', { total: files.length, existing: files.filter((f) => f.exists).length })}
+          {t('fileList.stats', { 
+            total: countTotalItems(fileSystemItems) + files.length, 
+            existing: countExistingItems(fileSystemItems) + files.filter((f) => f.exists).length
+          })}
         </p>
       </div>
 
       <div className="flex-1 overflow-y-auto scrollbar-thin">
-        <div className="p-2 space-y-1">
+        <div className="py-1">
+          {/* Render all folders first */}
+          {fileSystemItems.map((item) => (
+            <FileTreeItem
+              key={item.path}
+              item={item}
+              level={0}
+              selectedPath={selectedFile?.path || null}
+              expandedFolders={expandedFolders}
+              onSelect={onItemSelect}
+              onToggleFolder={onToggleFolder}
+              onAddTag={(path, tagId) => {
+                const currentTags = fileTags[path] || []
+                if (!currentTags.includes(tagId)) {
+                  onTagUpdate(path, [...currentTags, tagId])
+                }
+              }}
+              onRemoveTag={(path, tagId) => {
+                const currentTags = fileTags[path] || []
+                onTagUpdate(path, currentTags.filter(id => id !== tagId))
+              }}
+              onTagUpdate={onTagUpdate}
+              onTagCreate={onTagCreate}
+              onTagDelete={onTagDelete}
+              onItemRemove={onFileSystemItemRemove}
+              tags={tags}
+              itemTags={fileTags[item.path] || []}
+              fileTags={fileTags}
+            />
+          ))}
+          
+          {/* Then render all standalone files */}
           {files.map((file) => (
             <div
               key={file.path}
-              className={`group relative rounded-lg p-3 cursor-pointer transition-colors ${
+              className={`group relative rounded-lg p-2 mx-2 my-1 cursor-pointer transition-colors ${
                 selectedFile?.path === file.path
                   ? "bg-blue-100 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-700"
                   : "hover:bg-gray-100 dark:hover:bg-gray-700"
