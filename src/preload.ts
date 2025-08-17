@@ -6,6 +6,12 @@ export interface ConfigFile {
   exists: boolean
 }
 
+export interface ConfigTemplate {
+  name: string
+  path: string
+  description?: string
+}
+
 export interface FileResult {
   success: boolean
   content?: string
@@ -71,6 +77,10 @@ contextBridge.exposeInMainWorld("electronAPI", {
   getFolderContents: (
     folderPath: string
   ): Promise<FolderTreeResult> => ipcRenderer.invoke("get-folder-contents", folderPath),
+  getConfigTemplates: (): Promise<ConfigTemplate[]> =>
+    ipcRenderer.invoke("get-config-templates"),
+  checkFilesExistence: (filePaths: string[]): Promise<Record<string, boolean>> =>
+    ipcRenderer.invoke("check-files-existence", filePaths),
 })
 
 declare global {
@@ -100,6 +110,8 @@ declare global {
       }>
       scanFolderTree: (folderPath: string, maxDepth?: number) => Promise<FolderTreeResult>
       getFolderContents: (folderPath: string) => Promise<FolderTreeResult>
+      getConfigTemplates: () => Promise<ConfigTemplate[]>
+      checkFilesExistence: (filePaths: string[]) => Promise<Record<string, boolean>>
     }
   }
 }

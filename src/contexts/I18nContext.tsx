@@ -97,6 +97,15 @@ const messages: I18nMessages = {
     'folder.remove.note': '注意：这只会从应用中移除文件夹，不会删除实际文件夹及其内容。',
     'folder.tag.manage': '管理文件夹标签',
     'folder.showInFolder': '在文件管理器中显示',
+    'settings.advanced': '高级设置',
+    'settings.resetOnboarding': '重置为初始状态',
+    'settings.resetOnboarding.description': '清除所有配置，重新开始初始化设置',
+    'onboarding.title': '欢迎使用 ConfEasy',
+    'onboarding.subtitle': '选择您要管理的配置文件',
+    'onboarding.loading': '加载中...',
+    'onboarding.fileNotExists': '文件不存在',
+    'onboarding.skip': '暂时跳过',
+    'onboarding.confirm': '确认 ({count} 个文件)',
   },
   en: {
     'app.title': 'ConfEasy',
@@ -187,6 +196,15 @@ const messages: I18nMessages = {
     'folder.remove.note': 'Note: This will only remove the folder from the app, not delete the actual folder and its contents.',
     'folder.tag.manage': 'Manage folder tags',
     'folder.showInFolder': 'Show in file manager',
+    'settings.advanced': 'Advanced',
+    'settings.resetOnboarding': 'Reset to Initial State',
+    'settings.resetOnboarding.description': 'Clear all configurations and restart initialization',
+    'onboarding.title': 'Welcome to ConfEasy',
+    'onboarding.subtitle': 'Select configuration files you\'d like to manage',
+    'onboarding.loading': 'Loading...',
+    'onboarding.fileNotExists': 'File does not exist',
+    'onboarding.skip': 'Skip for now',
+    'onboarding.confirm': 'Confirm ({count} files)',
   }
 }
 

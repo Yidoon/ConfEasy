@@ -1,10 +1,11 @@
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect, useRef } from "react"
 import { FileList } from "./components/FileList"
 import { Editor } from "./components/Editor"
 import { Header } from "./components/Header"
 import { TagFilter } from "./components/TagFilter"
 import { AddFileDialog } from "./components/AddFileDialog"
 import { SettingsDialog } from "./components/SettingsDialog"
+import OnboardingDialog from "./components/OnboardingDialog"
 import { useLocalStorage } from "./hooks/useLocalStorage"
 import { useTheme } from "./hooks/useTheme"
 import type { FileSystemItem } from './preload'
@@ -45,40 +46,54 @@ function App() {
   const [selectedTags, setSelectedTags] = useState<string[]>([])
   const [showAddDialog, setShowAddDialog] = useState(false)
   const [showSettingsDialog, setShowSettingsDialog] = useState(false)
+  
+  // Onboarding state
+  const [hasCompletedOnboarding, setHasCompletedOnboarding] = useLocalStorage<boolean>("hasCompletedOnboarding", false)
+  const [showOnboarding, setShowOnboarding] = useState(false)
+  const hasInitialized = useRef(false)
 
-  const loadConfigFiles = useCallback(async () => {
-    try {
-      if (!window.electronAPI) {
-        console.warn("Electron API not available - running in web mode")
-        return
-      }
-      const configFiles = await window.electronAPI.getConfigFiles()
-      
-      // Merge with existing custom files (don't overwrite)
-      setFiles((prevFiles) => {
-        // Update existing config files and add new ones
-        const updatedFiles = configFiles.map((file) => ({
-          ...file,
-          tags: fileTags[file.path] || [],
-        }))
-        
-        // Keep custom files that are not in configFiles
-        const customFiles = prevFiles.filter(f => 
-          !configFiles.some(cf => cf.path === f.path)
-        )
-        
-        return [...updatedFiles, ...customFiles]
-      })
-    } catch (error) {
-      console.error("Failed to load config files:", error)
-    }
-  }, [fileTags, setFiles])
-
-  // Load config files on mount
+  // Check for first launch and show onboarding
   useEffect(() => {
-    // Always load predefined config files on mount to merge with saved files
-    loadConfigFiles()
-  }, [loadConfigFiles]) // Include dependency to satisfy lint rules
+    if (!hasInitialized.current && window.electronAPI) {
+      hasInitialized.current = true
+      
+      if (!hasCompletedOnboarding) {
+        setShowOnboarding(true)
+        // For first-time users, clear any existing files and start with empty list
+        setFiles([])
+      }
+      // For returning users, files are automatically loaded from localStorage by useLocalStorage hook
+    }
+  }, [hasCompletedOnboarding, setFiles])
+  
+  // Handle onboarding confirmation
+  const handleOnboardingConfirm = async (selectedPaths: string[]) => {
+    if (!window.electronAPI) return
+    
+    // Load the selected files
+    const selectedFiles: TaggedFile[] = []
+    for (const path of selectedPaths) {
+      // Get file name from path
+      const name = path.split('/').pop() || path.split('\\').pop() || path
+      selectedFiles.push({
+        name,
+        path,
+        exists: true,
+        tags: fileTags[path] || [],
+      })
+    }
+    
+    setFiles(selectedFiles)
+    setHasCompletedOnboarding(true)
+    setShowOnboarding(false)
+  }
+  
+  // Handle onboarding skip
+  const handleOnboardingSkip = () => {
+    setFiles([])
+    setHasCompletedOnboarding(true)
+    setShowOnboarding(false)
+  }
 
   const handleFileSelect = async (file: TaggedFile) => {
     if (!file.exists) {
@@ -119,8 +134,8 @@ function App() {
       )
       if (result.success) {
         setFileContent(content)
-        // Refresh file list to update exists status
-        await loadConfigFiles()
+        // File was saved successfully - no need to refresh file list
+        // since we're not auto-loading predefined configs anymore
       } else {
         console.error("Failed to save file:", result.error)
       }
@@ -456,6 +471,12 @@ function App() {
   return (
     <div className="h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 flex flex-col">
       <Header onOpenSettings={() => setShowSettingsDialog(true)} />
+      
+      <OnboardingDialog
+        open={showOnboarding}
+        onConfirm={handleOnboardingConfirm}
+        onSkip={handleOnboardingSkip}
+      />
 
       <AddFileDialog
         isOpen={showAddDialog}
@@ -471,6 +492,11 @@ function App() {
         onClose={() => setShowSettingsDialog(false)}
         theme={theme}
         onThemeChange={setTheme}
+        onResetOnboarding={() => {
+          setHasCompletedOnboarding(false)
+          setShowOnboarding(true)
+          setShowSettingsDialog(false)
+        }}
       />
 
       <TagFilter

@@ -50,6 +50,62 @@ const getConfigPaths = () => {
     ) : process.platform === "win32" ? node_path.join(home, "AppData", "Roaming", "Code", "User", "settings.json") : node_path.join(home, ".config", "Code", "User", "settings.json")
   };
 };
+const getConfigTemplates = () => {
+  const home = node_os.homedir();
+  const templates = [
+    {
+      name: ".npmrc",
+      path: node_path.join(home, ".npmrc"),
+      description: "NPM configuration file"
+    },
+    {
+      name: ".zshrc",
+      path: node_path.join(home, ".zshrc"),
+      description: "Zsh shell configuration"
+    },
+    {
+      name: ".bashrc",
+      path: node_path.join(home, ".bashrc"),
+      description: "Bash shell configuration"
+    },
+    {
+      name: ".bash_profile",
+      path: node_path.join(home, ".bash_profile"),
+      description: "Bash profile settings"
+    },
+    {
+      name: ".gitconfig",
+      path: node_path.join(home, ".gitconfig"),
+      description: "Git global configuration"
+    },
+    {
+      name: "hosts",
+      path: process.platform === "win32" ? "C:\\Windows\\System32\\drivers\\etc\\hosts" : "/etc/hosts",
+      description: "System hosts file"
+    },
+    {
+      name: ".ssh/config",
+      path: node_path.join(home, ".ssh", "config"),
+      description: "SSH client configuration"
+    },
+    {
+      name: "VS Code Settings",
+      path: process.platform === "darwin" ? node_path.join(home, "Library", "Application Support", "Code", "User", "settings.json") : process.platform === "win32" ? node_path.join(home, "AppData", "Roaming", "Code", "User", "settings.json") : node_path.join(home, ".config", "Code", "User", "settings.json"),
+      description: "Visual Studio Code settings"
+    },
+    {
+      name: ".vimrc",
+      path: node_path.join(home, ".vimrc"),
+      description: "Vim editor configuration"
+    },
+    {
+      name: ".tmux.conf",
+      path: node_path.join(home, ".tmux.conf"),
+      description: "Tmux terminal multiplexer configuration"
+    }
+  ];
+  return templates;
+};
 electron.ipcMain.handle("get-config-files", async () => {
   const paths = getConfigPaths();
   const files = [];
@@ -322,6 +378,21 @@ electron.ipcMain.handle("check-path", async (_, inputPath) => {
       isDirectory: false
     };
   }
+});
+electron.ipcMain.handle("get-config-templates", async () => {
+  return getConfigTemplates();
+});
+electron.ipcMain.handle("check-files-existence", async (_, filePaths) => {
+  const existence = {};
+  for (const filePath of filePaths) {
+    try {
+      await promises.access(filePath, promises.constants.F_OK);
+      existence[filePath] = true;
+    } catch {
+      existence[filePath] = false;
+    }
+  }
+  return existence;
 });
 electron.app.whenReady().then(() => {
   createWindow();

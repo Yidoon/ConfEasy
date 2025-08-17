@@ -75,6 +75,71 @@ const getConfigPaths = () => {
   }
 }
 
+// Get config templates with descriptions
+const getConfigTemplates = () => {
+  const home = homedir()
+  const templates = [
+    {
+      name: ".npmrc",
+      path: join(home, ".npmrc"),
+      description: "NPM configuration file"
+    },
+    {
+      name: ".zshrc",
+      path: join(home, ".zshrc"),
+      description: "Zsh shell configuration"
+    },
+    {
+      name: ".bashrc",
+      path: join(home, ".bashrc"),
+      description: "Bash shell configuration"
+    },
+    {
+      name: ".bash_profile",
+      path: join(home, ".bash_profile"),
+      description: "Bash profile settings"
+    },
+    {
+      name: ".gitconfig",
+      path: join(home, ".gitconfig"),
+      description: "Git global configuration"
+    },
+    {
+      name: "hosts",
+      path: process.platform === "win32"
+        ? "C:\\Windows\\System32\\drivers\\etc\\hosts"
+        : "/etc/hosts",
+      description: "System hosts file"
+    },
+    {
+      name: ".ssh/config",
+      path: join(home, ".ssh", "config"),
+      description: "SSH client configuration"
+    },
+    {
+      name: "VS Code Settings",
+      path: process.platform === "darwin"
+        ? join(home, "Library", "Application Support", "Code", "User", "settings.json")
+        : process.platform === "win32"
+        ? join(home, "AppData", "Roaming", "Code", "User", "settings.json")
+        : join(home, ".config", "Code", "User", "settings.json"),
+      description: "Visual Studio Code settings"
+    },
+    {
+      name: ".vimrc",
+      path: join(home, ".vimrc"),
+      description: "Vim editor configuration"
+    },
+    {
+      name: ".tmux.conf",
+      path: join(home, ".tmux.conf"),
+      description: "Tmux terminal multiplexer configuration"
+    }
+  ]
+  
+  return templates
+}
+
 // IPC handlers
 ipcMain.handle("get-config-files", async () => {
   const paths = getConfigPaths()
@@ -425,6 +490,27 @@ ipcMain.handle("check-path", async (_, inputPath: string) => {
       isDirectory: false,
     }
   }
+})
+
+// Get config templates for onboarding
+ipcMain.handle("get-config-templates", async () => {
+  return getConfigTemplates()
+})
+
+// Check existence of multiple files at once
+ipcMain.handle("check-files-existence", async (_, filePaths: string[]) => {
+  const existence: Record<string, boolean> = {}
+  
+  for (const filePath of filePaths) {
+    try {
+      await access(filePath, constants.F_OK)
+      existence[filePath] = true
+    } catch {
+      existence[filePath] = false
+    }
+  }
+  
+  return existence
 })
 
 // App event handlers

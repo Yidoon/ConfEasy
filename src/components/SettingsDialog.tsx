@@ -8,6 +8,7 @@ interface SettingsDialogProps {
   onClose: () => void
   theme: ThemeMode
   onThemeChange: (theme: ThemeMode) => void
+  onResetOnboarding?: () => void
 }
 
 export const SettingsDialog: React.FC<SettingsDialogProps> = ({
@@ -15,6 +16,7 @@ export const SettingsDialog: React.FC<SettingsDialogProps> = ({
   onClose,
   theme,
   onThemeChange,
+  onResetOnboarding,
 }) => {
   const { t, language, setLanguage } = useI18n()
 
@@ -133,6 +135,22 @@ export const SettingsDialog: React.FC<SettingsDialogProps> = ({
               </button>
             </div>
           </div>
+          
+          {/* Advanced Settings */}
+          {onResetOnboarding && (
+            <div>
+              <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-3">
+                {t('settings.advanced')}
+              </h3>
+              <button
+                onClick={onResetOnboarding}
+                className="w-full p-3 text-sm text-left rounded-lg border border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                title={t('settings.resetOnboarding.description')}
+              >
+                {t('settings.resetOnboarding')}
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Footer */}
