@@ -7,6 +7,9 @@
 
 [English](./README-EN.md) | 中文
 
+<img width="1207" height="741" alt="easy-conf-demo" src="https://github.com/user-attachments/assets/14b5dada-2343-4be2-af20-d276747f4cb8" />
+
+
 </div>
 
 ## ✨ 主要功能
