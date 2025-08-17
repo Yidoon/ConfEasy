@@ -7,6 +7,9 @@ An Electron desktop application that helps you quickly modify local configuratio
 
 English | [中文](./README.md)
 
+<img width="1215" height="744" alt="easy-conf-demo-en" src="https://github.com/user-attachments/assets/304fb289-5d40-4854-a1e6-0f0f0a2598c7" />
+
+
 </div>
 
 ## ✨ Key Features
