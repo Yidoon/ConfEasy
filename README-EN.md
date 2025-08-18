@@ -42,9 +42,21 @@ Visit [GitHub Releases](https://github.com/Yidoon/ConfEasy/releases) to download
 
 - **Intel Chips**: Download `confeasy-darwin-x64-*.zip`
 - **Apple Silicon (M1/M2)**: Download `confeasy-darwin-arm64-*.zip`
-- Extract and drag `confeasy.app` to Applications folder
+- Extract and drag `ConfEasy.app` to Applications folder
 
 **First Run Security Notice**: Right-click the app icon, select "Open", then click "Open" in the dialog
+
+**Important: Handling First-Run Security Alert**
+
+1. If you see "ConfEasy is damaged and can't be opened" warning, **DO NOT** move to trash
+2. **Method 1 (Recommended)**: Right-click the app icon, select "Open", then click "Open" in the dialog
+3. **Method 2**: Open Terminal and run the following command to remove quarantine attribute:
+   ```bash
+   sudo xattr -rd com.apple.quarantine /Applications/ConfEasy.app
+   ```
+4. **Method 3**: System Preferences → Security & Privacy → General → Find the blocked app and click "Open Anyway"
+
+> Note: This warning appears because the app is not signed by Apple, but the software itself is safe and open source.
 
 #### Windows
 

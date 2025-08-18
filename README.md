@@ -9,7 +9,6 @@
 
 <img width="1207" height="741" alt="easy-conf-demo" src="https://github.com/user-attachments/assets/14b5dada-2343-4be2-af20-d276747f4cb8" />
 
-
 </div>
 
 ## ✨ 主要功能
@@ -42,9 +41,20 @@
 
 - **Intel 芯片**：下载 `confeasy-darwin-x64-*.zip`
 - **Apple Silicon (M1/M2)**：下载 `confeasy-darwin-arm64-*.zip`
-- 解压后将 `confeasy.app` 拖拽到应用程序文件夹
+- 解压后将 `ConfEasy.app` 拖拽到应用程序文件夹
 
 **首次运行安全提示**：右键点击应用图标，选择"打开"，在弹出的对话框中点击"打开"
+**重要：首次运行安全提示处理**
+
+1. 如果出现"ConfEasy 已损坏，无法打开"警告，**不要**移到废纸篓
+2. **方法一（推荐）**：右键点击应用图标，选择"打开"，在弹出的对话框中点击"打开"
+3. **方法二**：打开终端，运行以下命令移除隔离属性：
+   ```bash
+   sudo xattr -rd com.apple.quarantine /Applications/ConfEasy.app
+   ```
+4. **方法三**：系统偏好设置 → 安全性与隐私 → 通用 → 找到被阻止的应用，点击"仍要打开"
+
+> 注意：此警告是因为应用未经 Apple 签名认证，但软件本身是安全开源的。
 
 #### Windows
 
